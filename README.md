@@ -38,7 +38,16 @@ splatgen/
 ├── interface/              # fastapi app
 │   ├── Dockerfile
 │   ├── requirements.txt
-│   └── app/
+│   ├── app/
+│   ├── static/             # For CSS and JS files
+│   │   ├── css/
+│   │   │   └── style.css
+│   │   └── js/
+│   │       └── script.js
+│   └── templates/          # For HTML files
+│       ├── upload.html
+│       ├── list_splats.html
+│       └── view_splat.html
 │
 ├── worker/                 # celery worker with queues
 │   ├── Dockerfile
