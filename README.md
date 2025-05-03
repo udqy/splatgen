@@ -1,14 +1,51 @@
 # splatgen
 Reconstruct scenes/objects from Videos using Gaussian Splatting
 
-**Requirements**:
+## **Requirements**:
 - Docker (nvidia-container-toolkit, docker-compose)
 - CUDA Enabled GPU
 - NVIDIA Container Toolkit >= 11.8
 
 <br>
 
-**Stack**:
+> [!NOTE]
+> The current configuration works for a single GPU of 7.5/8.6/8.9 CUDA Compute Capability, which covers most GeForce/RTX GPUs.
+
+<details>
+
+<summary>For other GPUs</summary>
+
+Get your Compute Capability with this command:
+```bash
+nvidia-smi --query-gpu=compute_cap --format=csv
+```
+Or find it on the NVIDIA Website [here](https://developer.nvidia.com/cuda-gpus).
+
+<br>
+
+Then set the `TORCH_CUDA_ARCH_LIST` variable in `worker/Dockerfile` to the Compute Capability of your GPU (e.g. 8.7, 8.9, 12.0).
+
+</details>
+<br>
+
+## **Setup**:
+
+```bash
+git clone https://github.com/udqy/splatgen
+cd splatgen
+docker compose build
+docker compose up
+```
+
+If you want to use more than one GPUs:
+```bash
+NUM_GPUS=$(nvidia-smi --query-gpu=count --format=csv,noheader)
+docker-compose up --build --scale gpu_worker=$NUM_GPUS -d
+```
+
+<br>
+
+## **Stack**:
 *   **Web Framework:** **FastAPI** (for handling HTTP requests, located in `interface/`)
 *   **Database:** **PostgreSQL** + **SQLAlchemy** + **`asyncpg`** (for storing job status and metadata)
 *   **Task Queue:** **Celery** (for defining, managing, and executing background tasks, located in `worker/`)
@@ -19,7 +56,7 @@ Reconstruct scenes/objects from Videos using Gaussian Splatting
 
 <br>
 
-**Architecture**:
+## **Architecture**:
 
 <details>
 <summary>High-Level architecture</summary>
@@ -37,7 +74,7 @@ Reconstruct scenes/objects from Videos using Gaussian Splatting
 
 <br>
 
-**Directory Structure**:
+## **Directory Structure**:
 
 ```bash
 splatgen/
@@ -69,16 +106,4 @@ splatgen/
 └── data/              # Mounted volume for persistent I/O
     └── <job_id_1>/
     └── <job_id_2>/
-```
-
-The current setup works for a single GPU of 8.9 CUDA Compute Capability.
-To extend this to other GPUs, get your Compute Capability with this command (Ex. 8.7, 8.9):
-```bash
-nvidia-smi --query-gpu=name,compute_cap --format=csv
-```
-
-If you want to use more than one GPUs:
-```bash
-NUM_GPUS=$(nvidia-smi --query-gpu=count --format=csv,noheader)
-docker-compose up --build --scale gpu_worker=$NUM_GPUS -d
 ```
