@@ -52,7 +52,7 @@ RUN git clone --recursive ${GSPLAT_REPO_URL} /opt/gaussian-splatting
 # Find your architecture using `nvidia-smi --query-gpu=name,compute_cap --format=csv`
 # You can also find it the official website: https://developer.nvidia.com/cuda-gpus
 # Set the CUDA architectures for building submodules
-ENV TORCH_CUDA_ARCH_LIST="8.9"
+ENV TORCH_CUDA_ARCH_LIST="7.5;8.6;8.9"
 
 # Build submodules
 RUN TORCH_CUDA_ARCH_LIST=$TORCH_CUDA_ARCH_LIST && \
