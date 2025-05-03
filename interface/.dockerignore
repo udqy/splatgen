@@ -1,0 +1,15 @@
+# interface
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.venv/
+venv/
+env/
+.git/
+.gitignore
+Dockerfile
+*.md

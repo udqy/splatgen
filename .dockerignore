@@ -1,0 +1,15 @@
+# root
+.git/
+.gitignore
+.env
+.env.*
+data/
+output_data/
+postgres_data/
+rabbitmq_data/
+*.md
+.venv/
+venv/
+
+.idea/
+.vscode/

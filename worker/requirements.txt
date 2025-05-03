@@ -1,0 +1,17 @@
+# worker/requirements.txt
+
+tqdm
+plyfile
+Pillow
+scipy
+opencv-python-headless
+opencv-python
+numpy<2
+onnxruntime
+rembg[gpu]
+
+celery
+amqp
+
+sqlalchemy
+psycopg2-binary

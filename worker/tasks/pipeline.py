@@ -1,0 +1,1 @@
+print("worker.tasks.pipeline module loaded (currently empty)")

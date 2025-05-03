@@ -1,0 +1,101 @@
+name: splatgen 
+
+services:
+  interface:
+    build:
+      context: ./interface
+      dockerfile: Dockerfile
+    container_name: splatgen_interface
+    ports:
+      - "8000:80"
+    volumes:
+      - ./interface:/app
+      - ./data:/app/data
+    environment:
+      - DATABASE_URL=postgresql+asyncpg://${POSTGRES_USER:-user}:${POSTGRES_PASSWORD:-password}@postgres:5432/${POSTGRES_DB:-splatgendb}
+      - RABBITMQ_URL=amqp://${RABBITMQ_DEFAULT_USER:-guest}:${RABBITMQ_DEFAULT_PASS:-guest}@rabbitmq:5672//
+    depends_on:
+      - postgres
+      - rabbitmq
+    command: uvicorn app.main:app --host 0.0.0.0 --port 80 --reload
+    restart: on-failure
+
+  cpu_worker:
+    build:
+      context: ./worker
+      dockerfile: Dockerfile
+    container_name: splatgen_cpu_worker
+    volumes:
+      - ./worker:/app/worker
+      - ./data:/app/data
+    environment:
+      - DATABASE_URL=postgresql+psycopg2://${POSTGRES_USER:-user}:${POSTGRES_PASSWORD:-password}@postgres:5432/${POSTGRES_DB:-splatgendb}
+      - RABBITMQ_URL=amqp://${RABBITMQ_DEFAULT_USER:-guest}:${RABBITMQ_DEFAULT_PASS:-guest}@rabbitmq:5672//
+      - CELERY_RESULT_BACKEND=db+postgresql+psycopg2://${POSTGRES_USER:-user}:${POSTGRES_PASSWORD:-password}@postgres:5432/${POSTGRES_DB:-splatgendb}
+      - NVIDIA_VISIBLE_DEVICES=""
+      - QT_QPA_PLATFORM=offscreen
+    depends_on:
+      - postgres
+      - rabbitmq
+    command: celery -A worker.celery_app worker -l info -Q cpu_queue --loglevel=INFO
+    restart: on-failure
+
+  gpu_worker:
+    build:
+      context: ./worker
+      dockerfile: Dockerfile
+    container_name: splatgen_gpu_worker
+    volumes:
+      - ./worker:/app/worker
+      - ./data:/app/data
+    environment:
+      - DATABASE_URL=postgresql+psycopg2://${POSTGRES_USER:-user}:${POSTGRES_PASSWORD:-password}@postgres:5432/${POSTGRES_DB:-splatgendb}
+      - RABBITMQ_URL=amqp://${RABBITMQ_DEFAULT_USER:-guest}:${RABBITMQ_DEFAULT_PASS:-guest}@rabbitmq:5672//
+      - CELERY_RESULT_BACKEND=db+postgresql+psycopg2://${POSTGRES_USER:-user}:${POSTGRES_PASSWORD:-password}@postgres:5432/${POSTGRES_DB:-splatgendb}
+      - QT_QPA_PLATFORM=offscreen
+      - NVIDIA_DRIVER_CAPABILITIES=all
+    depends_on:
+      - postgres
+      - rabbitmq
+    command: celery -A worker.celery_app worker -l info -Q gpu_queue -c 1 --loglevel=INFO # Listen only to gpu_queue, concurrency 1
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1 
+              capabilities: [gpu] 
+    restart: on-failure
+
+  rabbitmq:
+    image: rabbitmq:4-management
+    container_name: splatgen_rabbitmq
+    ports:
+      - "5672:5672"   # AMQP protocol port
+      - "15672:15672" # Management UI port
+    environment:
+      - RABBITMQ_DEFAULT_USER=${RABBITMQ_DEFAULT_USER:-guest}
+      - RABBITMQ_DEFAULT_PASS=${RABBITMQ_DEFAULT_PASS:-guest}
+    volumes:
+      # Persist RabbitMQ data
+      - rabbitmq_data:/var/lib/rabbitmq/
+    restart: on-failure
+
+  postgres:
+    image: postgres:17.4-bookworm
+    container_name: splatgen_postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_USER=${POSTGRES_USER:-user}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-password}
+      - POSTGRES_DB=${POSTGRES_DB:-splatgendb}
+    restart: on-failure
+
+volumes:
+  postgres_data:
+    driver: local
+  rabbitmq_data:
+    driver: local

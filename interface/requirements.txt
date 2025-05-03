@@ -1,0 +1,11 @@
+# interface/requirements.txt
+fastapi
+uvicorn[standard]
+jinja2
+python-multipart
+sqlalchemy[asyncio]
+asyncpg
+nanoid
+celery
+amqp
+python-dotenv
