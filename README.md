@@ -6,7 +6,6 @@ Reconstruct scenes/objects from Videos using Gaussian Splatting
 - CUDA Enabled GPU
 - NVIDIA Container Toolkit >= 11.8
 
-<br>
 
 > [!NOTE]
 > The current configuration works for a single GPU of 7.5/8.6/8.9 CUDA Compute Capability, which covers most GeForce/RTX GPUs.
@@ -15,18 +14,18 @@ Reconstruct scenes/objects from Videos using Gaussian Splatting
 
 <summary>For other GPUs</summary>
 
+<br>
+
 Get your Compute Capability with this command:
 ```bash
 nvidia-smi --query-gpu=compute_cap --format=csv
 ```
 Or find it on the NVIDIA Website [here](https://developer.nvidia.com/cuda-gpus).
 
-<br>
 
 Then set the `TORCH_CUDA_ARCH_LIST` variable in `worker/Dockerfile` to the Compute Capability of your GPU (e.g. 8.7, 8.9, 12.0).
 
 </details>
-<br>
 
 ## **Setup**:
 
@@ -43,8 +42,6 @@ NUM_GPUS=$(nvidia-smi --query-gpu=count --format=csv,noheader)
 docker-compose up --build --scale gpu_worker=$NUM_GPUS -d
 ```
 
-<br>
-
 ## **Stack**:
 *   **Web Framework:** **FastAPI** (for handling HTTP requests, located in `interface/`)
 *   **Database:** **PostgreSQL** + **SQLAlchemy** + **`asyncpg`** (for storing job status and metadata)
@@ -52,9 +49,6 @@ docker-compose up --build --scale gpu_worker=$NUM_GPUS -d
 *   **Message Broker:** **RabbitMQ** (mediates communication between FastAPI and Celery workers)
 *   **Containerization:** **Docker** & **Docker Compose** (for environment definition, build, orchestration, and configuration)
 
-
-
-<br>
 
 ## **Architecture**:
 
@@ -71,8 +65,6 @@ docker-compose up --build --scale gpu_worker=$NUM_GPUS -d
 ![diagram](docs/diagrams/arch.excalidraw.png)
 
 </details>
-
-<br>
 
 ## **Directory Structure**:
 
