@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+
+{% block title %}Create Splat - SplatGen{% endblock %}
+
+{% block content %}
+<h1>Create a New Splat</h1>
+
+<!-- The main form encompassing both columns -->
+<form action="{{ url_for('create_job') }}" method="post" enctype="multipart/form-data" class="create-form">
+    <div class="create-container">
+
+        <!-- Left Column: Upload -->
+        <div class="upload-section">
+            <h2>Upload Video</h2>
+            <label for="video_file">Select Video File:</label>
+            <input type="file" id="video_file" name="video_file" accept="video/*" required>
+            <!-- Add required for basic validation -->
+            <!-- You can add JS here later for preview or validation -->
+        </div>
+
+        <!-- Right Column: Form Details -->
+        <div class="form-details-section">
+            <h2>Splat Details</h2>
+
+            <div class="form-group">
+                <label for="splat_name">Name:</label>
+                <input type="text" id="splat_name" name="splat_name" placeholder="Give it a name" required>
+            </div>
+
+            <div class="form-group">
+                <label for="description">Description:</label>
+                <textarea id="description" name="description" rows="3" placeholder="About the splat"></textarea>
+            </div>
+
+            <div class="form-group">
+                <label for="num_frames">Frames to extract:</label>
+                <input type="range" id="num_frames" name="num_frames" min="10" max="300" value="120" step="2">
+                <span class="slider-value" id="num_frames_value">120</span>
+            </div>
+
+            <div class="form-group">
+                <label for="quality">Quality (Iterations):</label>
+                <input type="range" id="quality" name="iterations" min="5000" max="50000" value="7000" step="1000">
+                <span class="slider-value" id="quality_value">7000</span>
+            </div>
+
+            <button type="submit">Create Splat</button>
+        </div>
+
+    </div>
+</form>
+
+{% endblock %}
+
+{% block scripts %}
+    {{ super() }}
+    <script>
+        // update slider value displays
+        const numFramesSlider = document.getElementById('num_frames');
+        const numFramesValue = document.getElementById('num_frames_value');
+        const qualitySlider = document.getElementById('quality');
+        const qualityValue = document.getElementById('quality_value');
+
+        numFramesSlider.addEventListener('input', (event) => {
+            numFramesValue.textContent = event.target.value;
+        });
+
+        qualitySlider.addEventListener('input', (event) => {
+            qualityValue.textContent = event.target.value;
+        });
+    </script>
+{% endblock %}
