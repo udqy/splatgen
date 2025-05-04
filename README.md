@@ -18,7 +18,7 @@ Reconstruct scenes/objects from Videos using Gaussian Splatting
 
 Get your Compute Capability with this command:
 ```bash
-nvidia-smi --query-gpu=compute_cap --format=csv
+nvidia-smi --query-gpu=compute_cap --format=csv,noheader
 ```
 Or find it on the NVIDIA Website [here](https://developer.nvidia.com/cuda-gpus).
 
