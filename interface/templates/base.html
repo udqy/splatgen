@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{{ url_for('static', path='/styles.css') }}">
+    <title>{% block title %}SplatGen{% endblock %}</title>
+</head>
+<body>
+    <header>
+        <div class="logo">Splatgen</div>
+        <nav>
+            <ul>
+                <li><a href="{{ url_for('serve_create_page') }}">Create</a></li>
+                <li><a href="{{ url_for('serve_gallery_page') }}">Gallery</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main>
+        {% block content %}
+        {% endblock %}
+    </main>
+
+    <!-- Script block for base-level JS if needed later -->
+    {% block scripts %}
+    {% endblock %}
+</body>
+</html>
