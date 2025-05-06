@@ -1,5 +1,3 @@
-# worker/requirements.txt
-
 tqdm
 plyfile
 Pillow

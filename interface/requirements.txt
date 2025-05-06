@@ -1,11 +1,13 @@
-# interface/requirements.txt
 fastapi
 uvicorn[standard]
 jinja2
 python-multipart
 sqlalchemy[asyncio]
 asyncpg
+psycopg2-binary
 nanoid
 celery
 amqp
 python-dotenv
+alembic
+aiofiles

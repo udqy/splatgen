@@ -1,4 +1,4 @@
-name: splatgen 
+name: splatgen
 
 services:
   interface:
@@ -9,15 +9,18 @@ services:
     ports:
       - "8000:80"
     volumes:
-      - ./interface:/app
+      # Mount interface code into /app/interface for reload and worker access
+      - ./interface:/app/interface # <--- ADJUSTED PATH
       - ./data:/app/data
     environment:
+      - PYTHONPATH=/app # <--- ADDED
       - DATABASE_URL=postgresql+asyncpg://${POSTGRES_USER:-user}:${POSTGRES_PASSWORD:-password}@postgres:5432/${POSTGRES_DB:-splatgendb}
       - RABBITMQ_URL=amqp://${RABBITMQ_DEFAULT_USER:-guest}:${RABBITMQ_DEFAULT_PASS:-guest}@rabbitmq:5672//
     depends_on:
       - postgres
       - rabbitmq
-    command: uvicorn app.main:app --host 0.0.0.0 --port 80 --reload
+    # Command adjusted to reflect WORKDIR /app if not specified in Dockerfile, and reload path
+    command: uvicorn interface.app.main:app --host 0.0.0.0 --port 80 --reload --reload-dir /app/interface # <--- ADJUSTED COMMAND
     restart: on-failure
 
   cpu_worker:
@@ -27,8 +30,10 @@ services:
     container_name: splatgen_cpu_worker
     volumes:
       - ./worker:/app/worker
+      - ./interface:/app/interface  # <--- ADDED: Mount interface for imports
       - ./data:/app/data
     environment:
+      - PYTHONPATH=/app               # <--- ADDED: Allow imports from /app/interface
       - DATABASE_URL=postgresql+psycopg2://${POSTGRES_USER:-user}:${POSTGRES_PASSWORD:-password}@postgres:5432/${POSTGRES_DB:-splatgendb}
       - RABBITMQ_URL=amqp://${RABBITMQ_DEFAULT_USER:-guest}:${RABBITMQ_DEFAULT_PASS:-guest}@rabbitmq:5672//
       - CELERY_RESULT_BACKEND=db+postgresql+psycopg2://${POSTGRES_USER:-user}:${POSTGRES_PASSWORD:-password}@postgres:5432/${POSTGRES_DB:-splatgendb}
@@ -47,8 +52,10 @@ services:
     container_name: splatgen_gpu_worker
     volumes:
       - ./worker:/app/worker
+      - ./interface:/app/interface  # <--- ADDED: Mount interface for imports
       - ./data:/app/data
     environment:
+      - PYTHONPATH=/app               # <--- ADDED: Allow imports from /app/interface
       - DATABASE_URL=postgresql+psycopg2://${POSTGRES_USER:-user}:${POSTGRES_PASSWORD:-password}@postgres:5432/${POSTGRES_DB:-splatgendb}
       - RABBITMQ_URL=amqp://${RABBITMQ_DEFAULT_USER:-guest}:${RABBITMQ_DEFAULT_PASS:-guest}@rabbitmq:5672//
       - CELERY_RESULT_BACKEND=db+postgresql+psycopg2://${POSTGRES_USER:-user}:${POSTGRES_PASSWORD:-password}@postgres:5432/${POSTGRES_DB:-splatgendb}
@@ -63,12 +70,12 @@ services:
         reservations:
           devices:
             - driver: nvidia
-              count: 1 
-              capabilities: [gpu] 
+              count: 1
+              capabilities: [gpu]
     restart: on-failure
 
   rabbitmq:
-    image: rabbitmq:4-management
+    image: rabbitmq:4-management # Your specified version
     container_name: splatgen_rabbitmq
     ports:
       - "5672:5672"   # AMQP protocol port
@@ -82,7 +89,7 @@ services:
     restart: on-failure
 
   postgres:
-    image: postgres:17.4-bookworm
+    image: postgres:17.4-bookworm # Your specified version
     container_name: splatgen_postgres
     ports:
       - "5432:5432"
@@ -99,3 +106,4 @@ volumes:
     driver: local
   rabbitmq_data:
     driver: local
+    

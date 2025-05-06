@@ -32,7 +32,28 @@ Then set the `TORCH_CUDA_ARCH_LIST` variable in `worker/Dockerfile` to the Compu
 ```bash
 git clone https://github.com/udqy/splatgen
 cd splatgen
+cp .env.example .env
+```
+Edit the `.env` file to reflect your configuration.
+Or just uncomment the variables if you want to do a local setup. 
+
+Build the container:
+```bash
 docker compose build
+```
+
+Start the essential services:
+```bash
+docker-compose up -d postgres interface rabbitmq
+```
+
+Apply migrations:
+```bash
+docker-compose exec interface alembic upgrade head
+```
+
+
+```bash
 docker compose up
 ```
 
